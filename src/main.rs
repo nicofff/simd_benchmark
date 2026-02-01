@@ -83,6 +83,7 @@ fn main() {
     assert_eq!(gray_scalar, gray_simd, "std::simd result mismatch");
     assert_eq!(gray_scalar, gray_neon, "NEON result mismatch");
     println!("  ✓ Correctness verified\n");
+
     // ========================================================================
     // Scenario 2: Audio Processing - Volume Adjustment
     // ========================================================================
