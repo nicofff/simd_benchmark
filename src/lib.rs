@@ -294,7 +294,7 @@ pub mod audio_processing {
 
             // Handle remainder
             for i in simd_len..len {
-                let adjusted = (samples[i] as f32 * volume) as i32;
+                let adjusted = (samples[i] as i32 * vol_fixed) >> 8;
                 samples[i] = adjusted.clamp(-32768, 32767) as i16;
             }
         }
