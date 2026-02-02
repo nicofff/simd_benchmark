@@ -248,7 +248,7 @@ pub mod audio_processing {
         /// Simple addition divided by 2 to avoid overflow
         pub fn mix_tracks(track_a: &[i16], track_b: &[i16], output: &mut [i16]) {
             for ((a, b), out) in track_a.iter().zip(track_b.iter()).zip(output.iter_mut()) {
-                *out = ((*a as i32 + *b as i32) / 2) as i16;
+                *out = ((*a as i32 + *b as i32) >> 1) as i16;
             }
         }
     }
