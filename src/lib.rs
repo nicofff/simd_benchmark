@@ -60,7 +60,7 @@ pub mod image_processing {
     }
 
     pub mod portable_simd {
-        use std::simd::*;
+        use std::simd::{num::SimdUint, *};
 
         /// std::simd implementation: process 16 pixels at once
         ///
@@ -87,7 +87,7 @@ pub mod image_processing {
             let weight_r = u16x16::splat(77);
             let weight_g = u16x16::splat(150);
             let weight_b = u16x16::splat(29);
-
+            let shifter = Simd::splat(8);
             let mut out_idx = 0;
             for chunk in chunks {
                 // Load 48 bytes of RGB data
@@ -107,16 +107,16 @@ pub mod image_processing {
 
                 // Convert to u16 to avoid multiplication overflow
                 // u8 max is 255, 255 * 150 = 38250, requires u16
-                let r = u16x16::from_array(r_vals.map(|x| x as u16));
-                let g = u16x16::from_array(g_vals.map(|x| x as u16));
-                let b = u16x16::from_array(b_vals.map(|x| x as u16));
+                let r : u16x16 = u8x16::from_array(r_vals).cast();
+                let g : u16x16 = u8x16::from_array(g_vals).cast();
+                let b : u16x16 = u8x16::from_array(b_vals).cast();
 
                 // Parallel computation: process 16 pixels at once
-                let gray_u16 = (r * weight_r + g * weight_g + b * weight_b) >> Simd::splat(8);
+                let gray_u16 = (r * weight_r + g * weight_g + b * weight_b) >> shifter;
 
                 // Convert back to u8 and store
-                let gray_u8: [u8; 16] = gray_u16.to_array().map(|x| x as u8);
-                gray[out_idx..out_idx + 16].copy_from_slice(&gray_u8);
+                let gray_u8: u8x16 = gray_u16.cast();
+                gray_u8.copy_to_slice(&mut gray[out_idx..out_idx + 16]);
                 out_idx += 16;
             }
 
